@@ -1,0 +1,100 @@
+// Define o gerador de código para o Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Define a fonte de dados para o banco de dados PostgreSQL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define o modelo 'User' com os seguintes campos:
+// - 'id': identificador único do usuário, gerado automaticamente pelo banco de dados usando UUID
+// - 'name': nome do usuário
+// - 'email': endereço de email do usuário
+// - 'password': senha do usuário
+// - 'created_at': data e hora em que o usuário foi criado, gerado automaticamente pelo banco de dados
+// - 'updated_at': data e hora em que o usuário foi atualizado pela última vez, gerado automaticamente pelo banco de dados
+model User {
+  id         String     @id @default(uuid())
+  name       String
+  email      String
+  password   String
+  created_at DateTime?  @default(now())
+  updated_at DateTime?  @default(now())
+  category   Category[]
+
+  @@map("users") // Mapeia a tabela 'users' no banco de dados
+}
+
+// Define o modelo 'Category' com os seguintes campos:
+// - 'id': identificador único da categoria, gerado automaticamente pelo banco de dados usando UUID
+// - 'name': nome da categoria
+// - 'created_at': data e hora em que a categoria foi criada, gerado automaticamente pelo banco de dados
+// - 'updated_at': data e hora em que a categoria foi atualizada pela última vez, gerado automaticamente pelo banco de dados
+model Category {
+  id         String    @id @default(uuid())
+  name       String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+  products   Product[] // Relaciona a categoria com vários produtos
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+
+  @@map("categories") // Mapeia a tabela 'categories' no banco de dados
+}
+
+// Define o modelo 'Product' com os seguintes campos:
+// - 'id': identificador único do produto, gerado automaticamente pelo banco de dados usando UUID
+// - 'name': nome do produto
+// - 'price': preço do produto
+// - 'description': descrição do produto
+// - 'banner': imagem do produto
+// - 'created_at': data e hora em que o produto foi criado, gerado automaticamente pelo banco de dados
+// - 'updated_at': data e hora em que o produto foi atualizado pela última vez, gerado automaticamente pelo banco de dados
+model Product {
+  id          String    @id @default(uuid())
+  name        String
+  price       String
+  description String
+  banner      String
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @default(now())
+
+  items       Item[] // Relaciona o produto com vários itens
+  category    Category @relation(fields: [category_id], references: [id]) // Relaciona o produto com uma categoria
+  category_id String // Campo que armazena o ID da categoria
+
+  @@map("products") // Mapeia a tabela 'products' no banco de dados
+}
+
+model Order {
+  id         String    @id @default(uuid()) // Define a coluna id como chave primária e com valor padrão gerado automaticamente usando uuid()
+  table      Int // Define a coluna table como um inteiro
+  status     Boolean   @default(false) // Define a coluna status como um booleano com valor padrão "false"
+  draft      Boolean   @default(true) // Define a coluna draft como um booleano com valor padrão "true"
+  name       String? // Define a coluna name como uma string opcional
+  created_at DateTime? @default(now()) // Define a coluna created_at como uma data opcional e com valor padrão de "now()", que representa a data atual
+  updated_at DateTime? @default(now()) // Define a coluna updated_at como uma data opcional e com valor padrão de "now()", que representa a data atual
+
+  items Item[] // Define uma relação com a tabela "items"
+
+  @@map("orders") // Define o nome da tabela no banco de dados como "orders"
+}
+
+model Item {
+  id         String    @id @default(uuid()) // Define a coluna id como chave primária e com valor padrão gerado automaticamente usando uuid()
+  amount     Int // Define a coluna amount como um inteiro
+  created_at DateTime? @default(now()) // Define a coluna created_at como uma data opcional e com valor padrão de "now()", que representa a data atual
+  updated_at DateTime? @default(now()) // Define a coluna updated_at como uma data opcional e com valor padrão de "now()", que representa a data atual
+
+  order Order @relation(fields: [order_id], references: [id]) // Define uma relação com a tabela "orders" usando a coluna "order_id" como chave estrangeira
+
+  product Product @relation(fields: [product_id], references: [id]) // Define uma relação com a tabela "products" usando a coluna "product_id" como chave estrangeira
+
+  order_id   String // Define a coluna order_id como uma string para armazenar a chave estrangeira para a tabela "orders"
+  product_id String // Define a coluna product_id como uma string para armazenar a chave estrangeira para a tabela "products"
+
+  @@map("items") // Define o nome da tabela no banco de dados como "items"
+}
