@@ -14,7 +14,7 @@ app.use(router); // Middleware que permite que possamos utilizar as rotas dentro
 // Middleware para acessar as imagens
 app.use(
     '/files',
-    express.static(path.resolve(__dirname,'..','tmp'))
+    express.static(path.resolve(__dirname,'..','tmp')) //Acessa a imagem através da rota /files/nome completo do arquivo. 
 )
 
 
