@@ -1,17 +1,25 @@
-import prismaClient from "../../prisma";
+import { PrismaClient } from "@prisma/client";
 
-class ListCategoryService{
-    async execute(){
-        //Armazena todas as categorias criadas na constante category
-        const category = await prismaClient.category.findMany({
-          //Recebe apenas os campos id e name 
-            select:{
-                id: true,
-                name:true,
-            }
-        })
-        return category
-    }
+const prisma = new PrismaClient();
+
+interface ListRequest {
+  userId: string;
 }
 
-export {ListCategoryService}
+class ListCategoryService {
+  async execute({ userId }: ListRequest) {
+    // Armazena as categorias criadas pelo usuário específico na constante category
+    const categories = await prisma.category.findMany({
+      where: {
+        userId: userId,
+      },
+      select: {
+        name: true,
+        userId: true,
+      },
+    });
+    return categories;
+  }
+}
+
+export { ListCategoryService };

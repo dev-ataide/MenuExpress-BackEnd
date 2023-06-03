@@ -3,13 +3,29 @@ import { Router, Request, Response } from "express";
 import { CreateUserController } from "./controllers/user/CreateUserController"
 import { AuthUserController } from "./controllers/user/AuthUserController";
 import { DetailUserController } from "./controllers/user/DetailUserController";
+
 import { isAuthenticated } from "./middlewares/isAuthenticated";
+
 import { CreateCategoryController } from "./controllers/category/CreateCategoryController";
 import { ListCategoryController } from "./controllers/category/ListCategoryController";
 import { CreateProductController } from "./controllers/product/CreateProductController";
+
 import multer  from "multer";
 import uploadConfig from "./config/multer";
+
 import { ListByCategoryController } from "./controllers/product/ListByCategoryController";
+
+import { CreateOrderController } from "./controllers/order/CreateOrderController";
+import { RemoveOrderController } from "./controllers/order/RemoveOrderController";
+
+import { AddItemController } from "./controllers/order/AddItemController";
+import { RemoveItemController } from "./controllers/order/RemoveItemController";
+
+import { SendOrderController } from "./controllers/order/SendOrderController";
+import { ListOrderController } from "./controllers/order/ListOrderController";
+
+import { DetailOrderController } from "./controllers/order/DetailOrder/DetailOrderController";
+import { FinishOrderController } from "./controllers/order/FinishOrderRequest";
 
 // Cria uma nova instância do objeto Router
 const router = Router();
@@ -45,14 +61,27 @@ router.get('/listcategory', isAuthenticated, new ListCategoryController().handle
 //############# Rotas dos produtos #############################################################################################################
 
 // Cadastrando produto
-router.post('/product', isAuthenticated, upload.single('file') ,new CreateProductController().handle)
+router.post('/product', isAuthenticated, upload.single('file'), new CreateProductController().handle)
 router.get('/category/product', isAuthenticated, new ListByCategoryController().handle)
 
+//Rotas de Pedidos
+router.post('/order/addorder', isAuthenticated, new CreateOrderController().handle)
+router.delete('/order/removeorder', isAuthenticated, new RemoveOrderController().handle);
 
+//Rotas de Itens
+router.post('/order/additem', isAuthenticated, new AddItemController().handle);
+router.delete('/order/removeitem', isAuthenticated, new RemoveItemController().handle);
 
+//Rotas de Envio de Pedidos
+// .put para atualizar o bd
+router.put('/order/send', isAuthenticated, new SendOrderController().handle) 
+router.get('/orders', isAuthenticated, new ListOrderController().handle)
 
+// Rota de Detalhes do pedido
+router.get('/order/detail' , new DetailOrderController().handle)
 
-
+// Rota de Finalização do Pedido
+router.put('/order/finishorder', isAuthenticated, new FinishOrderController().handle)
 
 // Exporta o objeto 'router' para ser utilizado em outros arquivos que o importarem
 export {router}
